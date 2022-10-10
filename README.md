@@ -21,35 +21,36 @@ STATE = fsm_create([
 	// ========= IDLE STATE =========
 	new fsm_state("IDLE",
 	function() {
-		show_debug_message("IDLE STEP");
+		show_debug_message("IDLE - STEP");
 		
 	}, function() {
-		show_debug_message("IDLE ENTER");
+		show_debug_message("IDLE - ENTER");
 		
 	}, function() {
-		show_debug_message("IDLE EXIT");
+		show_debug_message("IDLE - EXIT");
 	}),
 	
 	
 	// ========= MOVE STATE =========
 	new fsm_state("MOVE",
 	function() {
-		show_debug_message("STEP MOVE");
+		show_debug_message("MOVE - STEP");
 		
 	}, function() {
-		show_debug_message("ENTER MOVE");
+		show_debug_message("MOVE - ENTER");
 		
 	}, function() {
-		show_debug_message("EXIT MOVE");
+		show_debug_message("MOVE - EXIT");
 	}),
-], [
+],
+[
 	// --------- ANIMATIONS ---------
 	new fsm_animation_state("IDLE", function() {
-		show_debug_message("ANIM - IDLE");
+		show_debug_message("IDLE - ANIM");
 	}),
 	
 	new fsm_animation_state("MOVE", function() {
-		show_debug_message("ANIM - MOVE");
+		show_debug_message("MOVE - ANIM");
 	}),
 ]);
 
