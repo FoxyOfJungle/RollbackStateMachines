@@ -8,7 +8,7 @@ You can download the .yymps file (right side - releases) or simply copy the scri
 
 ## Features ##
 
-* Create states in one place;
+* Create states and organize all the code in just one place;
 * Handles animations separate from states logic (for better organization);
 * It has an "Any State" state that is executed every frame, regardless of the current state;
 * It is possible to go to the previous state;
