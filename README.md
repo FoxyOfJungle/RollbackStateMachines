@@ -5,6 +5,17 @@ Simple yet functional and versatile state machine for GameMaker
 
 You can download the .yymps file (right side - releases) or simply copy the script from the .gml file.
 
+## Features ##
+
+* Create states in one place;
+* Handles animations separate from states logic (for better organization);
+* It has an "Any State" state that is executed every frame, regardless of the current state;
+* It is possible to go to the previous state;
+* Get current state name;
+
+*(This system does not have transitions, you need to do it within the states themselves).*
+
+
 ## Usage ##
 
 An example of usage:
