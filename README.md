@@ -35,12 +35,6 @@ STATE = fsm_create([
 	new fsm_state("MOVE",
 	function() {
 		show_debug_message("MOVE - STEP");
-		
-	}, function() {
-		show_debug_message("MOVE - ENTER");
-		
-	}, function() {
-		show_debug_message("MOVE - EXIT");
 	}),
 ], [
 	// --------- ANIMATIONS ---------
