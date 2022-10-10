@@ -15,7 +15,8 @@ You can download the .yymps file (right side - releases) or simply copy the scri
 * Get current state name;
 
 *(This system does not have transitions, you need to do it within the states themselves).*
-This system has a very simple logic for general cases.
+* This system has a very simple logic for general cases.
+* The system uses strings to reference the state, which prevents using intellisense. You can manually access the current_state variable.
 
 
 ## Usage ##
