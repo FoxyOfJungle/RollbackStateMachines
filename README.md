@@ -15,6 +15,7 @@ You can download the .yymps file (right side - releases) or simply copy the scri
 * Get current state name;
 
 *(This system does not have transitions, you need to do it within the states themselves).*
+This system has a very simple logic for general cases.
 
 
 ## Usage ##
