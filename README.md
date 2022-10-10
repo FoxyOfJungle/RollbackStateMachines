@@ -23,6 +23,7 @@ You can download the .yymps file (right side - releases) or simply copy the scri
 
 An example of usage:
 
+Create Event:
 ```gml
 STATE = fsm_create([
 	
@@ -62,4 +63,8 @@ STATE = fsm_create([
 ]);
 
 fsm_set_state(STATE, "IDLE");
+```
+Step Event:
+```gml
+fsm_step(STATE);
 ```
