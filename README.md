@@ -5,6 +5,7 @@ Simple yet functional and versatile state machine for GameMaker
 
 You can download the .yymps file (right side - releases) or simply copy the script from the .gml file.
 
+
 ## Features ##
 
 * Create states in one place;
