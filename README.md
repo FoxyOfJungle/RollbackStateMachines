@@ -42,8 +42,7 @@ STATE = fsm_create([
 	}, function() {
 		show_debug_message("MOVE - EXIT");
 	}),
-],
-[
+], [
 	// --------- ANIMATIONS ---------
 	new fsm_animation_state("IDLE", function() {
 		show_debug_message("IDLE - ANIM");
