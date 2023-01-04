@@ -25,46 +25,51 @@ An example of usage:
 
 Create Event:
 ```gml
-STATE = fsm_create([
-	
-	// ========= ANY STATE ==========
-	new fsm_state_any(function() {
-		show_debug_message("ANY STATE");
-	}),
 
-	
-	// ========= IDLE STATE =========
-	new fsm_state("IDLE",
-	function() {
-		show_debug_message("IDLE - STEP");
+state = new StateMachine([
+	new StateAny(function() {
+		if keyboard_check_pressed(ord("N")) show_debug_message("Any State");
 		
-	}, function() {
-		show_debug_message("IDLE - ENTER");
-		
-	}, function() {
-		show_debug_message("IDLE - EXIT");
+		if keyboard_check_pressed(ord("J")) {
+			state.SetOldState();
+		}
 	}),
+	// --------------------------
 	
+	new State("IDLE",
+		function() {
+			// Go to "MOVE" state
+			if keyboard_check_pressed(ord("G")) {
+				state.SetState("MOVE");
+			}
+		},
+		function() {
+			show_debug_message("Idle: Enter");
+		},
+		function() {
+			show_debug_message("Idle: Exit");
+		}),
+	// --------------------------
 	
-	// ========= MOVE STATE =========
-	new fsm_state("MOVE",
-	function() {
-		show_debug_message("MOVE - STEP");
-	}),
-], [
-	// --------- ANIMATIONS ---------
-	new fsm_animation_state("IDLE", function() {
-		show_debug_message("IDLE - ANIM");
-	}),
+	new State("MOVE",
+		function() {
+			// Go to "IDLE" state
+			if keyboard_check_pressed(ord("G")) {
+				state.SetState("IDLE");
+			}
+		},
+		function() {
+			show_debug_message("Move: Enter");
+		},
+		function() {
+			show_debug_message("Move: Exit");
+		}),
 	
-	new fsm_animation_state("MOVE", function() {
-		show_debug_message("MOVE - ANIM");
-	}),
-]);
+], []);
 
-fsm_set_state(STATE, "IDLE");
+state.SetState("IDLE");
 ```
 Step Event:
 ```gml
-fsm_step(STATE);
+state.Update();
 ```
