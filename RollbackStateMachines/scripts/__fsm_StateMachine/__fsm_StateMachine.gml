@@ -1,9 +1,10 @@
 
 /// Feather ignore all
-/*=================================================================================
-	State Machine with Rollback netcode support. Copyright (C) 2024, Foxy Of Jungle
+/*==================================================================================
+	State Machine with Rollback netcode support.
+	Copyright (C) 2024, FoxyOfJungle (@foxyofjungle) | https://foxyofjungle.itch.io/
 	License: MIT
-=================================================================================*/
+==================================================================================*/
 
 /// @desc Create State Machine
 /// @method StateMachine(initialState)
@@ -25,6 +26,7 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 	historyMaxSize = 10;
 	
 	#region Private Methods
+	/// @ignore
 	static __historyAdd = function() {
 		array_push(history, state);
 		if (array_length(history) > historyMaxSize) {
@@ -138,7 +140,8 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 	/// @param {Real} position The historical position with previous states.
 	/// @returns {undefined}
 	static SetStateFromHistory = function(_position) {
-		SetState(clamp(_position, 0, array_length(states)-1));
+		var _end = array_length(states)-1;
+		SetState(clamp(_end-_position, 0, _end));
 	}
 	
 	/// @desc This function performs the "Free State" in addition to the current state;
@@ -167,7 +170,7 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 					__historyAdd();
 				}
 			} else {
-				__rsm_trace("Initial state is invalid", 1);
+				__fsm_trace("Initial state is invalid", 1);
 			}
 			initialState = undefined;
 		}
@@ -184,7 +187,6 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 		}
 		
 		// run transitions destinations conditions
-		//show_debug_message("---");
 		var _tr = transitions[$ states[state].name];
 		if (_tr != undefined) {
 			var _destinations = _tr.destinations; // struct
@@ -192,7 +194,6 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 			var i = 0, isize = array_length(_names), name = "";
 			repeat(isize) {
 				name = _names[i];
-				//show_debug_message(name);
 				if (method(instanceId, _destinations[$ name])()) {
 					SetState(name);
 					break;
@@ -242,9 +243,9 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 
 /// Feather ignore all
 /// @ignore
-/// @func __rsm_trace(text)
+/// @func __fsm_trace(text)
 /// @param {String} text
-function __rsm_trace(text, level=1) {
+function __fsm_trace(text, level=1) {
 	gml_pragma("forceinline");
 	if (level <= FSM_CFG_TRACE_LEVEL) show_debug_message($"# RSM >> {text}");
 }

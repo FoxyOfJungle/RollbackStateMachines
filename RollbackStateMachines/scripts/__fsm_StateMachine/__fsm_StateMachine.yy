@@ -1,9 +1,9 @@
 {
   "$GMScript":"",
-  "%Name":"__sm_StateMachine",
+  "%Name":"__fsm_StateMachine",
   "isCompatibility":false,
   "isDnD":false,
-  "name":"__sm_StateMachine",
+  "name":"__fsm_StateMachine",
   "parent":{
     "name":"Core",
     "path":"folders/KazanGames/RollbackStateMachines/Core.yy",

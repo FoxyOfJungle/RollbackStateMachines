@@ -9,7 +9,7 @@
   "ResourceOrderSettings":[
     {"name":"objPlayer","order":2,"path":"objects/objPlayer/objPlayer.yy",},
     {"name":"objSolid","order":1,"path":"objects/objSolid/objSolid.yy",},
-    {"name":"__sm_Settings","order":3,"path":"scripts/__sm_Settings/__sm_Settings.yy",},
+    {"name":"__fsm_Settings","order":3,"path":"scripts/__fsm_Settings/__fsm_Settings.yy",},
     {"name":"sprMaskPlayer","order":4,"path":"sprites/sprMaskPlayer/sprMaskPlayer.yy",},
     {"name":"sprMaskSolid","order":3,"path":"sprites/sprMaskSolid/sprMaskSolid.yy",},
     {"name":"sprPlayerJump","order":2,"path":"sprites/sprPlayerJump/sprPlayerJump.yy",},

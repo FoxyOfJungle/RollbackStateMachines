@@ -22,3 +22,7 @@ if keyboard_check_pressed(ord("K")) {
 	fsmChar.SetState(1);
 }
 
+*/
+if keyboard_check_pressed(ord("K")) {
+	fsmChar.SetStateFromHistory(1);
+}
