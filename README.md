@@ -57,9 +57,9 @@ fsmChar.AddState("Walk", {
 		sprite_index = sprPlayerWalk;
 		image_speed = 0.8;
 	},
-    onExit : function() {
-        show_debug_message("Walk Exit...");
-    }
+	onExit : function() {
+		show_debug_message("Walk Exit...");
+	}
 });
 
 // Create Transitions
