@@ -15,7 +15,7 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 	state = undefined;
 	statesIds = {}; // "idle" : 0 | "walk" : 1 (used to finding state index by name)
 	statesCurrentId = 0;
-	transitions = {}; // "idle" : {destination: undefined, condition: undefined}
+	transitions = {}; // "idle" : {destinations: {"name" : function}}
 	previousState = state;
 	__stateTracked = undefined;
 	initialState = _initialState;
