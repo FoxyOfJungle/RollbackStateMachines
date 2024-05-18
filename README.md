@@ -16,6 +16,8 @@ You can download the .yymps file (right side - releases) or simply copy the scri
 * Transitions: change from one state to another using a condition;
 * onStart, onStep and onExit functions/methods for each state (all optional).
 * State history (useful for going back to previous states);
+* Triggers (clone the execution behaviour of another state);
+* State override (single function or to another state);
 * Get current state name.
 * Netcode rollback compatible (non-native)
 * * With just one integer variable, synchronize State Machine state - which consumes less memory than structs, and better performance (no need for serialization).

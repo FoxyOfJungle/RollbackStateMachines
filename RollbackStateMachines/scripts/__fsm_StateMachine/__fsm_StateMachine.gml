@@ -1,7 +1,7 @@
 
 /// Feather ignore all
 /*==================================================================================
-	State Machine with Rollback netcode support.
+	State Machine with Rollback netcode support. v1.1 (17/05/2024)
 	Copyright (C) 2024, FoxyOfJungle (@foxyofjungle) | https://foxyofjungle.itch.io/
 	License: MIT
 ==================================================================================*/
@@ -127,6 +127,37 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 			};
 		}
 		transitions[$ _from].destinations[$ _destination] = _condition;
+		return self;
+	}
+	
+	/// @desc Add a State as a trigger for another. In other words, its functions will be executed according to the defined state.
+	/// @method AddTrigger(state, triggerState)
+	/// @param {String,Real} state The state to add the trigger to.
+	/// @param {String,Real} triggerState The trigger state to be added.
+	static AddTrigger = function(_state, _triggerState) {
+		// get state id from string
+		if (is_string(_state)) {
+			_state = statesIds[$ _state];
+		}
+		if (is_string(_triggerState)) {
+			_triggerState = statesIds[$ _triggerState];
+		}
+		// do not add trigger if the state is the same
+		if (_triggerState == _state) {
+			__fsm_trace($"Can't add child \"{_triggerState}\" to itself \"{_state}\"", 1);
+			exit;
+		}
+		
+		// get origin state struct
+		var _parentState = states[_state];
+		
+		// create triggers array
+		if (_parentState[$ "triggers"] == undefined) {
+			_parentState[$ "triggers"] = [];
+		}
+		
+		// add trigger state to parent state
+		array_push(_parentState[$ "triggers"], _triggerState);
 		return self;
 	}
 	
@@ -280,37 +311,6 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 	static SetStateFromHistory = function(_position) {
 		var _end = array_length(states)-1;
 		SetState(clamp(_end-_position, 0, _end));
-	}
-	
-	/// @desc Add a State as a trigger for another. In other words, its functions will be executed according to the defined state.
-	/// @method AddTrigger(state, triggerState)
-	/// @param {String,Real} state The state to add the trigger to.
-	/// @param {String,Real} triggerState The trigger state to be added.
-	static AddTrigger = function(_state, _triggerState) {
-		// get state id from string
-		if (is_string(_state)) {
-			_state = statesIds[$ _state];
-		}
-		if (is_string(_triggerState)) {
-			_triggerState = statesIds[$ _triggerState];
-		}
-		// do not add trigger if the state is the same
-		if (_triggerState == _state) {
-			__fsm_trace($"Can't add child \"{_triggerState}\" to itself \"{_state}\"", 1);
-			exit;
-		}
-		
-		// get origin state struct
-		var _parentState = states[_state];
-		
-		// create triggers array
-		if (_parentState[$ "triggers"] == undefined) {
-			_parentState[$ "triggers"] = [];
-		}
-		
-		// add trigger state to parent state
-		array_push(_parentState[$ "triggers"], _triggerState);
-		return self;
 	}
 	
 	/// @desc Replaces functions from one state to another, keeping the same state name.
