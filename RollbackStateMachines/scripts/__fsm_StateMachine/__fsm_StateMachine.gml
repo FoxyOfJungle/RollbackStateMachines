@@ -10,14 +10,15 @@
 /// @method StateMachine(initialState)
 /// @param {String,Real} initialState The initial state index.
 function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
-	freeState = undefined;
-	states = [];
+	freeStates = []; // array of functions
+	freeStatesSize = 0;
+	states = []; // array of structs
 	state = undefined;
 	statesIds = {}; // "idle" : 0 | "walk" : 1 (used to finding state index by name)
 	statesCurrentId = 0;
-	transitions = {}; // "idle" : {destinations: {"name" : function}}
 	previousState = state;
 	__stateTracked = undefined;
+	transitions = {}; // "idle" : {destinations: {"name" : function}}
 	initialState = _initialState;
 	initialStateExecuteEnter = _executeEnter;
 	instanceId = other.id;
@@ -33,6 +34,59 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 			array_delete(history, 0, 1);
 		}
 	}
+	
+	/// @ignore
+	static __callEnter = function() {
+		gml_pragma("forceinline");
+		var _st = states[state];
+		if (_st.onEnter != undefined) {
+			method(instanceId, _st.onEnter)(); // (runs on the INSTANCE context)
+		}
+	}
+	
+	/// @ignore
+	static __callStep = function() {
+		gml_pragma("forceinline");
+		var _st = states[state];
+		if (_st.onStep != undefined) {
+			method(instanceId, _st.onStep)(); // (runs on the INSTANCE context)
+		}
+	}
+	
+	/// @ignore
+	static __callExit = function() {
+		gml_pragma("forceinline");
+		var _st = states[state];
+		if (_st.onExit != undefined) {
+			method(instanceId, _st.onExit)(); // (runs on the INSTANCE context)
+		}
+	}
+	
+	/// @ignore
+	static __callTriggers = function(_type) {
+		var _triggers = states[state].triggers; // array of state (ids)
+		if (_triggers != undefined) {
+			var _funcName;
+			if (_type == 0) {
+				_funcName = "onStep";
+			} else
+			if (_type == 1) {
+				_funcName = "onEnter";
+			} else
+			if (_type == 2) {
+				_funcName = "onExit";
+			}
+			var i = 0, isize = array_length(_triggers), _triggerState = undefined, _triggerFunc = undefined;
+			repeat(isize) {
+				_triggerState = states[_triggers[i]];
+				_triggerFunc = _triggerState[$ _funcName];
+				if (_triggerFunc != undefined) {
+					method(instanceId, _triggerFunc)();
+				}
+				++i;
+			}
+		}
+	}
 	#endregion
 	
 	#region Public Methods
@@ -46,15 +100,19 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 		states[statesCurrentId][$ "onEnter"] ??= undefined;
 		states[statesCurrentId][$ "onStep"] ??= undefined;
 		states[statesCurrentId][$ "onExit"] ??= undefined;
+		states[statesCurrentId][$ "triggers"] = undefined;
 		statesIds[$ _name] = statesCurrentId;
 		statesCurrentId += 1;
+		return self;
 	}
 	
 	/// @desc Add a free state (maximum one). This state runs every frame.
 	/// @method AddFreeState(stateFunction)
 	/// @param {Function} stateFunction The function to run.
 	static AddFreeState = function(_stateFunction) {
-		freeState = _stateFunction;
+		freeStates[freeStatesSize] = _stateFunction;
+		freeStatesSize += 1;
+		return self;
 	}
 	
 	/// @desc Adds a transition to the State Machine. While it is in the state of the first parameter, it executes the condition function, if it returns true, it goes to the destination state.
@@ -69,12 +127,7 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 			};
 		}
 		transitions[$ _from].destinations[$ _destination] = _condition;
-	}
-	
-	/// @desc Verify if State Machine has any states.
-	/// @method HasStates()
-	static HasStates = function() {
-		return (array_length(states) > 0);
+		return self;
 	}
 	
 	/// @desc This function defines which state to run.
@@ -94,54 +147,21 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 		// set "previous state" to current state
 		previousState = state;
 		
-		// get current state struct and run their "onExit" function
-		var _curState = states[state];
-		if (_curState.onExit != undefined) {
-			method(instanceId, _curState.onExit)(); // (runs on the INSTANCE context)
-		}
+		// run "exit" function before going to the new state
+		__callExit();
+		__callTriggers(2);
 		
 		// change current state to new state
 		state = _state;
 		
 		// get new state struct and run "enter" function from new state
-		var _newState = states[_state];
-		if (_newState.onEnter != undefined) {
-			method(instanceId, _newState.onEnter)(); // (runs on the INSTANCE context)
-		}
+		__callEnter();
+		__callTriggers(1);
 		
 		// save state on historic (if enabled)
 		if (historyEnable) {
 			__historyAdd();
 		}
-	}
-	
-	/// @desc Enable or disable states history.
-	/// @method HistorySetEnable(enable)
-	/// @param {Bool} enable Enable or disable.
-	static HistorySetEnable = function(_enable) {
-		historyEnable = _enable;
-	}
-	
-	/// @desc Clear states history.
-	/// @method HistoryClear()
-	static HistoryClear = function() {
-		array_resize(history, 0);
-	}
-	
-	/// @desc Enable or disable states history.
-	/// @method HistorySetMaxSize(size)
-	/// @param {Real} size Maximum size.
-	static HistorySetMaxSize = function(_size) {
-		historyMaxSize = _size;
-	}
-	
-	/// @desc This function changes the current state to a previous state (from history).
-	/// @method SetStateFromHistory()
-	/// @param {Real} position The historical position with previous states.
-	/// @returns {undefined}
-	static SetStateFromHistory = function(_position) {
-		var _end = array_length(states)-1;
-		SetState(clamp(_end-_position, 0, _end));
 	}
 	
 	/// @desc This function performs the "Free State" in addition to the current state;
@@ -164,7 +184,10 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 				previousState = state;
 				if (initialStateExecuteEnter) {
 					var _newState = states[state];
-					if (_newState.onEnter != undefined) method(instanceId, _newState.onEnter)();
+					if (_newState.onEnter != undefined) {
+						method(instanceId, _newState.onEnter)();
+					}
+					__callTriggers(1);
 				}
 				if (historyEnable) {
 					__historyAdd();
@@ -175,19 +198,24 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 			initialState = undefined;
 		}
 		
-		// run free state function
-		if (freeState != undefined) freeState();
+		// run free state functions
+		var fi = 0;
+		repeat(freeStatesSize) method(instanceId, freeStates[fi++])();
 		
 		// only execute if there are states
 		if (state == undefined) exit;
+		var _currentState = states[state]; // struct
 		
-		// run current state function (on the INSTANCE context)
-		if (states[state].onStep != undefined) {
-			method(instanceId, states[state].onStep)();
+		// call state's onStep function
+		if (_currentState.onStep != undefined) {
+			method(instanceId, _currentState.onStep)();
 		}
 		
+		// execute triggers onStep()
+		__callTriggers(0);
+		
 		// run transitions destinations conditions
-		var _tr = transitions[$ states[state].name];
+		var _tr = transitions[$ _currentState.name];
 		if (_tr != undefined) {
 			var _destinations = _tr.destinations; // struct
 			var _names = variable_struct_get_names(_destinations);
@@ -214,6 +242,114 @@ function StateMachine(_initialState=undefined, _executeEnter=true) constructor {
 				SetState(_variable);
 			}
 		}
+	}
+	
+	/// @desc Verify if State Machine has any states.
+	/// @method HasStates()
+	static HasStates = function() {
+		return (array_length(states) > 0);
+	}
+	
+	/// @desc Enable or disable states history.
+	/// @method HistorySetEnable(enable)
+	/// @param {Bool} enable Enable or disable.
+	static HistorySetEnable = function(_enable) {
+		historyEnable = _enable;
+		return self;
+	}
+	
+	/// @desc Clear states history.
+	/// @method HistoryClear()
+	static HistoryClear = function() {
+		array_resize(history, 0);
+		return self;
+	}
+	
+	/// @desc Enable or disable states history.
+	/// @method HistorySetMaxSize(size)
+	/// @param {Real} size Maximum size.
+	static HistorySetMaxSize = function(_size) {
+		historyMaxSize = _size;
+		return self;
+	}
+	
+	/// @desc This function changes the current state to a previous state (from history).
+	/// @method SetStateFromHistory()
+	/// @param {Real} position The historical position with previous states.
+	/// @returns {undefined}
+	static SetStateFromHistory = function(_position) {
+		var _end = array_length(states)-1;
+		SetState(clamp(_end-_position, 0, _end));
+	}
+	
+	/// @desc Add a State as a trigger for another. In other words, its functions will be executed according to the defined state.
+	/// @method AddTrigger(state, triggerState)
+	/// @param {String,Real} state The state to add the trigger to.
+	/// @param {String,Real} triggerState The trigger state to be added.
+	static AddTrigger = function(_state, _triggerState) {
+		// get state id from string
+		if (is_string(_state)) {
+			_state = statesIds[$ _state];
+		}
+		if (is_string(_triggerState)) {
+			_triggerState = statesIds[$ _triggerState];
+		}
+		// do not add trigger if the state is the same
+		if (_triggerState == _state) {
+			__fsm_trace($"Can't add child \"{_triggerState}\" to itself \"{_state}\"", 1);
+			exit;
+		}
+		
+		// get origin state struct
+		var _parentState = states[_state];
+		
+		// create triggers array
+		if (_parentState[$ "triggers"] == undefined) {
+			_parentState[$ "triggers"] = [];
+		}
+		
+		// add trigger state to parent state
+		array_push(_parentState[$ "triggers"], _triggerState);
+		return self;
+	}
+	
+	/// @desc Replaces functions from one state to another, keeping the same state name.
+	/// @func OverrideState(from, to, onStep, onEnter, onExit)
+	/// @param {String,Real} from The state to copy from.
+	/// @param {String,Real} from The state to copy to.
+	/// @param {Bool} replaceOnStep If true, will replace the onStep function.
+	/// @param {Bool} replaceOnEnter If true, will replace the onEnter function.
+	/// @param {Bool} replaceOnExit If true, will replace the onExit function.
+	static OverrideState = function(_from, _to, _replaceOnStep=true, _replaceOnEnter=true, _replaceOnExit=true) {
+		// get state id from string
+		if (is_string(_from)) {
+			_from = statesIds[$ _from];
+		}
+		if (is_string(_to)) {
+			_to = statesIds[$ _to];
+		}
+		// replace functions
+		if (_replaceOnStep) states[_to][$ "onStep"] = states[_from][$ "onStep"];
+		if (_replaceOnEnter) states[_to][$ "onEnter"] = states[_from][$ "onEnter"];
+		if (_replaceOnExit) states[_to][$ "onExit"] = states[_from][$ "onExit"];
+		return self;
+	}
+	
+	/// @desc Replaces specific functions from a state.
+	/// @func OverrideStateFunction(state, onStep, onEnter, onExit)
+	/// @param {String,Real} state The state to override functions.
+	/// @param {Function,Undefined} onStep If defined, replaces the onStep function with a new function/method.
+	/// @param {Function,Undefined} onEnter If defined, replaces the onEnter function with a new function/method.
+	/// @param {Function,Undefined} onExit If defined, replaces the onExit function with a new function/method.
+	static OverrideStateFunction = function(_state, _onStep=undefined, _onEnter=undefined, _onExit=undefined) {
+		// get state id from string
+		if (is_string(_state)) {
+			_state = statesIds[$ _state];
+		}
+		if (_onStep != undefined) states[_state][$ "onStep"] = _onStep;
+		if (_onEnter != undefined) states[_state][$ "onEnter"] = _onEnter;
+		if (_onExit != undefined) states[_state][$ "onExit"] = _onExit;
+		return self;
 	}
 	
 	/// @desc Get state struct.

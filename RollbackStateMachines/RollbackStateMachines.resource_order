@@ -1,10 +1,10 @@
 {
   "FolderOrderSettings":[
+    {"name":"Example","order":5,"path":"folders/Example.yy",},
     {"name":"RollbackStateMachines","order":1,"path":"folders/KazanGames/RollbackStateMachines.yy",},
     {"name":"Core","order":2,"path":"folders/KazanGames/RollbackStateMachines/Core.yy",},
-    {"name":"Objects","order":3,"path":"folders/Objects.yy",},
-    {"name":"Rooms","order":4,"path":"folders/Rooms.yy",},
-    {"name":"Sprites","order":1,"path":"folders/Sprites.yy",},
+    {"name":"Objects","order":1,"path":"folders/Example/Objects.yy",},
+    {"name":"Rooms","order":2,"path":"folders/Example/Rooms.yy",},
   ],
   "ResourceOrderSettings":[
     {"name":"objPlayer","order":2,"path":"objects/objPlayer/objPlayer.yy",},

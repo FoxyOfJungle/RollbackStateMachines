@@ -22,7 +22,7 @@ dashAngle = 0;
 enableMovement = true;
 
 
-// ===============================
+// ===============================================
 // Create State Machine
 fsmChar = new StateMachine("Idle");
 characterState = 0; // trackable state variable (for rollback netcode sync)
@@ -82,12 +82,16 @@ fsmChar.AddFreeState(function() {
 // Idle
 fsmChar.AddState("Idle", {
 	onStep : function() {
-		
+		//show_debug_message("calling Idle onStep");
 	},
 	onEnter : function() {
 		sprite_index = sprPlayerIdle;
 		image_speed = 0.25;
+		
 	},
+	onExit : function() {
+		
+	}
 });
 
 // Walk
@@ -137,6 +141,7 @@ fsmChar.AddState("Dash", {
 	}
 });
 
+
 // Create Transitions
 fsmChar.AddTransition("Idle", "Walk", function() {
 	return (inputH != 0);
@@ -160,4 +165,30 @@ fsmChar.AddTransition("Dash", "Idle", function() {
 	return (dashTimer < 0 || place_meeting(x+xSpeed, y+ySpeed, objSolid));
 });
 
+
+// --------------------------
+// add trigger states [optional / test]
+/*fsmChar.AddState("IdleTrigger1", {
+	onStep : function() {
+		//show_debug_message("calling IdleTrigger1 onStep");
+	},
+	onEnter : function() {
+		show_debug_message("Idle Tg Enter");
+	},
+	onExit : function() {
+		show_debug_message("Idle Tg Exit");
+	},
+});
+fsmChar.AddState("IdleTrigger2", {
+	onEnter : function() {
+		show_debug_message("Idle Tg2 Enter");
+	},
+});
+
+fsmChar.AddTrigger("Idle", "IdleTrigger1");
+//fsmChar.AddTrigger("Idle", "IdleTrigger2");
+
+//fsmChar.OverrideState("IdleTrigger1", "Walk");
+//fsmChar.OverrideStateFunction("Walk", fsmChar.GetState("IdleTrigger1").onStep);
+*/
 
